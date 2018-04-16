@@ -11,7 +11,10 @@ public class LinkedHashMap<K, V> implements Map<K, V> {
 	
 	private ArrayList<LinkedList<Pair<K, V>>> table;
 	private int size;
-	
+
+	private Pair<K, V> first;
+	private Pair<K, V> last;
+
 	public LinkedHashMap() {
 		table = new ArrayList<>(SIZE);
 		
@@ -28,13 +31,13 @@ public class LinkedHashMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	public List<K> keyset() {
+	public List<K> keySet() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<V> valueset() {
+	public List<V> valueSet() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -90,24 +93,103 @@ public class LinkedHashMap<K, V> implements Map<K, V> {
 		values.add(pair);
 		
 		++size;
+
+		if (first == null && last == null) {
+			first = pair;
+		} else if (last != null) {
+			last.next = pair;
+		}
+
+		pair.previous = last;
+		last = pair;
 	}
 
 	//TODO: Implement this method. It should return true if something was removed from the map.
+	@Override
 	public boolean remove(K key) {
+
+		int index = hashIndex(key);
+
+		LinkedList<Pair<K, V>> values = table.get(index);
+
+		if (values == null) {
+			return false;
+		}
+
+		for(Pair<K, V> pair : values) {
+
+			if (pair.key.equals(key)) {
+				values.remove(pair);
+				--size;
+				removeFromOrderList(pair);
+				return true;
+			}
+		}
+
 		return false;
 	}
 
-	//TODO: This implementation should return the Map in a way that the elements are enumerated
-	//TODO: in the same order as inserted.
+	private void removeFromOrderList(Pair<K, V> pair) {
+
+		if (pair == first && pair == last) {
+			first = null;
+			last = null;
+			return;
+		}
+
+		if (pair == first) {
+			first = first.next;
+			return;
+		}
+
+		if (pair == last) {
+			last = last.previous;
+			return;
+		}
+
+		pair.previous.next = pair.next;
+		pair.next.previous = pair.previous;
+	}
+
+	public void clear() {
+
+		for(LinkedList<Pair<K, V>> values : table) {
+
+			if (values != null) {
+				values.clear();
+			}
+		}
+
+		for(int i=0; i < table.size(); ++i) {
+			table.set(i, null);
+		}
+
+		size = 0;
+	}
+
 	@Override
 	public String toString() {
-		return "";
+		final StringBuilder builder = new StringBuilder("[");
+
+		Pair<K, V> pair = first;
+
+		while (pair.next != null) {
+			builder.append(pair + ", ");
+			pair = pair.next;
+		}
+
+		builder.append(pair + "]");
+
+		return builder.toString();
 	}
 	
 	public static class Pair<K, V> {
 		public K key;
 		public V value;
-		
+
+		Pair<K, V> next;
+		Pair<K, V> previous;
+
 		@Override
 		public String toString() {
 			return String.format("{%s: %s}", key.toString(), value.toString());
