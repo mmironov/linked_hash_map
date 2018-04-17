@@ -4,7 +4,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        HashMap<String, Integer> numbers = new HashMap<>();
+        Map<String, Integer> numbers = new LinkedHashMap<>();
 
         numbers.insert("seven", 7);
         numbers.insert("zero", 0);
@@ -13,8 +13,8 @@ public class Main {
 
         System.out.println(numbers.contains("seven"));
 
-        numbers.remove("zero");
-        numbers.remove("zero");
+//        numbers.remove("zero");
+//        numbers.remove("zero");
 
         System.out.println(numbers);
     }
